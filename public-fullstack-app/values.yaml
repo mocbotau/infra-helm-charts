@@ -1,0 +1,12 @@
+application:
+  version: "not set"
+  # image:
+  port: 80
+  # environment:
+  # secrets:
+  # volume:
+  #   size:
+  #   mountPath:
+ingress:
+  # - subdomain: "app"
+  #   urlPrefix: "/"

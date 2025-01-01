@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{- template "app.service" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{- template "app.service" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{- template "app.service" . }}
+        version: "{{ .Values.application.version }}"
+    spec:
+      containers:
+        - name: {{- template "app.service" . }}
+          image: {{ .Values.application.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.application.port }}
+              name: app-port
+          {{ if or .Values.application.environment .Values.application.secrets }}
+          envFrom:
+            {{ if .Values.application.environment }}
+            - configMapRef:
+                name: {{- template "app.service" . }}
+            {{ end }}
+            {{ if .Values.application.secrets }}
+            - secretRef:
+                name: {{- template "app.service" . }}
+            {{ end }}
+          {{ end }}
+          {{ if .Values.application.volume }}
+          volumeMounts:
+            - name: {{- template "app.service" . }}
+              mountPath: {{ .Values.application.volume.mountPath }}
+          {{ end }}
+      {{ if .Values.application.volume }}
+      volumes:
+        - name: {{- template "app.service" . }}
+          persistentVolumeClaim:
+            claimName: {{- template "app.service" . }}
+      {{ end }}
+      imagePullSecrets:
+        - name: regcred

@@ -1,0 +1,7 @@
+{{ if .Values.application.environment }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{- template "app.service" . }}
+data: {{ .Values.application.environment | toYaml | nindent 2 }}
+{{ end }}
