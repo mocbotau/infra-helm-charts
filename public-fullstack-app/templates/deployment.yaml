@@ -14,34 +14,37 @@ spec:
         version: "{{ .Values.application.version }}"
     spec:
       containers:
-        {{ range .Values.application.containers }}
+        {{- if .Values.application.containers }}
+        {{- range .Values.application.containers }}
         - name: {{ .name }}
           image: {{ .image }}
           imagePullPolicy: {{ .pullPolicy | default "Always" }}
           ports:
             - containerPort: {{ .port }}
               name: {{ .name }}-port
-          {{ if .environment or .secrets }}
+          {{- if .environment or .secrets }}
           envFrom:
-            {{ if .environment }}
+            {{- if .environment }}
             - configMapRef:
                 name: {{ .name }}
-            {{ end }}
-            {{ if .secrets }}
+            {{- end }}
+            {{- if .secrets }}
             - secretRef:
                 name: {{ .name }}
-            {{ end }}
-          {{ end }}
-          {{ if volume }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.application.volume }}
           volumeMounts:
-            - name: {{ .name }}
-              mountPath: {{ .mountPath }}
-          {{ end }}
-      {{ if .Values.application.volume }}
+            - name: {{- template "app.service" . }}
+              mountPath: {{ .Values.application.volume.mountPath }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- if .Values.application.volume }}
       volumes:
         - name: {{- template "app.service" . }}
           persistentVolumeClaim:
             claimName: {{- template "app.service" . }}
-      {{ end }}
+      {{- end }}
       imagePullSecrets:
         - name: regcred
