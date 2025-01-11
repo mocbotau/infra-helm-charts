@@ -14,27 +14,28 @@ spec:
         version: "{{ .Values.application.version }}"
     spec:
       containers:
-        - name: {{- template "app.service" . }}
-          image: {{ .Values.application.image }}
-          imagePullPolicy: Always
+        {{ range .Values.application.containers }}
+        - name: {{ .name }}
+          image: {{ .image }}
+          imagePullPolicy: {{ .pullPolicy | default "Always" }}
           ports:
-            - containerPort: {{ .Values.application.port }}
-              name: app-port
-          {{ if or .Values.application.environment .Values.application.secrets }}
+            - containerPort: {{ .port }}
+              name: {{ .name }}-port
+          {{ if .environment or .secrets }}
           envFrom:
-            {{ if .Values.application.environment }}
+            {{ if .environment }}
             - configMapRef:
-                name: {{- template "app.service" . }}
+                name: {{ .name }}
             {{ end }}
-            {{ if .Values.application.secrets }}
+            {{ if .secrets }}
             - secretRef:
-                name: {{- template "app.service" . }}
+                name: {{ .name }}
             {{ end }}
           {{ end }}
-          {{ if .Values.application.volume }}
+          {{ if volume }}
           volumeMounts:
-            - name: {{- template "app.service" . }}
-              mountPath: {{ .Values.application.volume.mountPath }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
           {{ end }}
       {{ if .Values.application.volume }}
       volumes:
