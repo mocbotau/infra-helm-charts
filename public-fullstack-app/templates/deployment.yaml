@@ -21,7 +21,7 @@ spec:
           imagePullPolicy: {{ .pullPolicy | default "Always" }}
           ports:
             - containerPort: {{ .port }}
-              name: {{ .name }}-port
+              name: app-port
           {{- if or .environment .secrets }}
           envFrom:
             {{- if .environment }}
