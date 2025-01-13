@@ -1,7 +1,12 @@
-{{ if .Values.application.environment }}
+{{- if .Values.application.containers }}
+{{- range .Values.application.containers }}
+{{- if .environment }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{- template "app.service" . }}
-data: {{ .Values.application.environment | toYaml | nindent 2 }}
-{{ end }}
+  name: {{ .name }}
+data: {{ .environment | toYaml | nindent 2 }}
+{{- end }}
+---
+{{- end }}
+{{- end }}

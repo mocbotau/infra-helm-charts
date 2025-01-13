@@ -1,13 +1,16 @@
-{{ if .Values.application.volume }}
+{{- if .Values.application.volumes }}
+{{- range .Values.application.volumes }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{- template "app.service" . }}
+  name: {{ .name }}
 spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: local-path
   resources:
     requests:
-      storage: {{ .Values.application.volume.size }}
-{{ end }}
+      storage: {{ .size }}
+---
+{{- end }}
+{{- end }}

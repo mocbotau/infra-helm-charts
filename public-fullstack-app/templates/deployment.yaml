@@ -22,7 +22,7 @@ spec:
           ports:
             - containerPort: {{ .port }}
               name: {{ .name }}-port
-          {{- if .environment or .secrets }}
+          {{- if or .environment .secrets }}
           envFrom:
             {{- if .environment }}
             - configMapRef:
@@ -33,18 +33,22 @@ spec:
                 name: {{ .name }}
             {{- end }}
           {{- end }}
-          {{- if .Values.application.volume }}
+          {{- if .volumeMounts }}
           volumeMounts:
-            - name: {{- template "app.service" . }}
-              mountPath: {{ .Values.application.volume.mountPath }}
+            {{- range .volumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
           {{- end }}
         {{- end }}
         {{- end }}
-      {{- if .Values.application.volume }}
+      {{- if .Values.application.volumes }}
       volumes:
-        - name: {{- template "app.service" . }}
+        {{- range .Values.application.volumes }}
+        - name: {{ .name }}
           persistentVolumeClaim:
-            claimName: {{- template "app.service" . }}
+            claimName: {{ .name }}
+        {{- end }}
       {{- end }}
       imagePullSecrets:
         - name: regcred
