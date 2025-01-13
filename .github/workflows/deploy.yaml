@@ -13,6 +13,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Deploy web-app chart
         run: |
-          cd web-app
-          helm package .
-          curl --user ${{ secrets.ORG_CHARTMUSEUM_USER }}:${{ secrets.ORG_CHARTMUSEUM_PASS }} --data-binary "@$(ls -1 | grep .tgz | head -1)" https://chartmuseum.masterofcubesau.com/api/charts
+          for chart_dir in charts/*; do
+            if [ -d "$chart_dir" ]; then
+              echo "Deploying chart from $chart_dir"
+              cd "$chart_dir"
+              helm package .
+              CHART_PACKAGE=$(ls -1 | grep .tgz | head -1)
+              curl --user ${{ secrets.ORG_CHARTMUSEUM_USER }}:${{ secrets.ORG_CHARTMUSEUM_PASS }} --data-binary "@$CHART_PACKAGE" https://chartmuseum.masterofcubesau.com/api/charts
+              cd - > /dev/null
+            fi
+          done

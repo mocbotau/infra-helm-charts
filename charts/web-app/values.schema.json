@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "application": {
+      "description": "yaml-language-server: $schema=values.schema.json",
+      "properties": {
+        "port": {
+          "default": 80,
+          "description": "image:",
+          "required": [],
+          "title": "port",
+          "type": "integer"
+        },
+        "version": {
+          "default": "not set",
+          "required": [],
+          "title": "version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "port"
+      ],
+      "title": "application",
+      "type": "object"
+    },
+    "global": {
+      "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
+      "required": [],
+      "title": "global",
+      "type": "object"
+    },
+    "ingress": {
+      "default": "",
+      "required": [],
+      "title": "ingress",
+      "type": "null"
+    }
+  },
+  "required": [
+    "application",
+    "ingress"
+  ],
+  "type": "object"
+}

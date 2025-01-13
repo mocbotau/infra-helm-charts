@@ -1,0 +1,19 @@
+{{- range .Values.deployments }}
+{{- if .volumes }}
+{{- range .volumes }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .name }}
+  namespace: {{ template "app.namespace" $ | default "default" }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: {{ .size }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
