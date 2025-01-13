@@ -11,8 +11,8 @@ jobs:
     steps:
       - name: Checkout configuration
         uses: actions/checkout@v4
-      - name: Deploy public-fullstack-app chart
+      - name: Deploy web-app chart
         run: |
-          cd public-fullstack-app
+          cd web-app
           helm package .
           curl --user ${{ secrets.ORG_CHARTMUSEUM_USER }}:${{ secrets.ORG_CHARTMUSEUM_PASS }} --data-binary "@$(ls -1 | grep .tgz | head -1)" https://chartmuseum.masterofcubesau.com/api/charts
