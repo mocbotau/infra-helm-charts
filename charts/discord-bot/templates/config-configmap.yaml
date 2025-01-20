@@ -1,0 +1,16 @@
+{{- range .Values.deployments }}
+{{- if .config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-file-{{ .name }}
+  namespace: {{ template "app.namespace" $ | default "default" }}
+data:
+  {{ .config.fileName | default "config.yaml" }}: |
+    {{- required 
+        (printf "The file variable '%s' is required but not defined! Did you forget to use --set-file for this variable?" 
+        .config.fileVariable) 
+        (index $.Values .config.fileVariable) | nindent 4 }}
+---
+{{- end }}
+{{- end }}
