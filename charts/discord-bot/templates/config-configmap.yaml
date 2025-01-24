@@ -1,4 +1,4 @@
-{{- range .Values.deployments }}
+{{- range (concat .Values.deployments .Values.statefulSets) }}
 {{- if .config }}
 apiVersion: v1
 kind: ConfigMap
