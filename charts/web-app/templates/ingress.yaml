@@ -1,20 +1,23 @@
+{{- range $d := .Values.deployments }}
+{{- if $d.exposeService }}
 kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: {{- template "app.service" . }}
+  name: ingress-{{ template "app.service" $ }}-{{ $.Values.environment }}
+  namespace: {{ template "app.namespace" $ | default "default" }}
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-${{ $.Values.environment }}"
 
 spec:
   ingressClassName: traefik
   tls:
-    {{- range $i, $x := .Values.ingress }}
+    {{- range $i, $x := $.Values.ingress }}
     - hosts: ["{{ $x.subdomain }}.masterofcubesau.com"]
       secretName: {{ template "app.service" $ }}-{{ $i }}-tls
     {{- end }}
   rules:
-    {{- range .Values.ingress }}
+    {{- range $.Values.ingress }}
     - host: "{{ .subdomain }}.masterofcubesau.com"
       http:
         paths:
@@ -22,7 +25,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{- template "app.service" $ }}
+                name: service-{{ $d.name }}-{{ $.Values.environment }}
                 port:
                   number: 80
     {{- end }}
+{{- end }}
+{{- end }}
