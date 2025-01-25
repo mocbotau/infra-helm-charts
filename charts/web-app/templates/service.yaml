@@ -1,11 +1,17 @@
+{{- range .Values.deployments }}
+{{- if .exposeService }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{- template "app.service" . }}
+  name: service-{{ .name }}-{{ $.Values.environment }}
+  namespace: {{ template "app.namespace" $ | default "default" }}
 spec:
   type: ClusterIP
   ports:
     - port: 80
       targetPort: app-port
   selector:
-    app: {{- template "app.service" . }}
+    app: {{ .name }}
+---
+{{- end }}
+{{- end }}

@@ -1,54 +1,98 @@
+# Ensure that only one container has exposeService set to true
+{{- $exposedContainers := 0 -}}
+{{- range .Values.deployments }}
+  {{- if .exposeService }}
+    {{- $exposedContainers = add $exposedContainers 1 }}
+  {{- end }}
+{{- end }}
+{{- if ne $exposedContainers 1 }}
+  {{- fail "Error: One container and one container only should have exposeService set to true." }}
+{{- end }}
+
+{{- range .Values.deployments }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{- template "app.service" . }}
+  name: {{ .name }}-{{ $.Values.environment }}
+  namespace: {{ template "app.namespace" $ | default "default" }}
 spec:
   selector:
     matchLabels:
-      app: {{- template "app.service" . }}
-  replicas: 1
+      app: {{ .name }}
+  replicas: {{ .replicas | default 1 }}
   template:
     metadata:
       labels:
-        app: {{- template "app.service" . }}
-        version: "{{ .Values.application.version }}"
+        app: {{ .name }}
+        version: "{{ $.Values.version }}"
     spec:
       containers:
-        {{- if .Values.application.containers }}
-        {{- range .Values.application.containers }}
         - name: {{ .name }}
           image: {{ .image }}
           imagePullPolicy: {{ .pullPolicy | default "Always" }}
+          {{- if .exposeService }}
           ports:
-            - containerPort: {{ .port }}
+            - containerPort: {{ .port | default 8080 }}
               name: app-port
-          {{- if or .environment .secrets }}
+          {{- end }}
+          {{- if .readinessProbe }}
+          readinessProbe:
+            {{- if .readinessProbe }}
+            httpGet:
+              path: {{ .readinessProbe.path }}
+              port: {{ .readinessProbe.port }}
+            {{- end }}
+            initialDelaySeconds: {{ .readinessProbe.initialDelaySeconds | default 5 }}
+            periodSeconds: {{ .readinessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .readinessProbe.timeoutSeconds | default 1 }}
+          {{- end }}
+          {{- if .resources }}
+          resources:
+            {{- if .resources.limits }}
+            limits:
+              cpu: {{ .resources.limits.cpu | default "200m" }}
+              memory: {{ .resources.limits.memory | default "256Mi" }}
+            {{- end }}
+            {{- if .resources.requests }}
+            requests:
+              cpu: {{ .resources.requests.cpu | default "100m" }}
+              memory: {{ .resources.requests.memory | default "128Mi" }}
+            {{- end }}
+          {{- end }}
+          {{- if .environment }}
           envFrom:
-            {{- if .environment }}
             - configMapRef:
-                name: {{ .name }}
+                name: env-{{ .name }}-{{ $.Values.environment }}
+          {{- end }}
+          {{- if or .secrets .volumes }}
+          volumeMounts:
+            {{- if .volumes }}
+            {{- range .volumes }}
+            - name: volume-{{ .name }}-{{ $.Values.environment }}
+              mountPath: {{ .mountPath }}
+              readOnly: {{ .readOnly | default false }}
+            {{- end }}
             {{- end }}
             {{- if .secrets }}
-            - secretRef:
-                name: {{ .name }}
+            - name: secrets-{{ .name }}-{{ $.Values.environment }}
+              mountPath: /secrets
+              readOnly: true
             {{- end }}
-          {{- end }}
-          {{- if .volumeMounts }}
-          volumeMounts:
-            {{- range .volumeMounts }}
-            - name: {{ .name }}
-              mountPath: {{ .mountPath }}
-            {{- end }}
-          {{- end }}
-        {{- end }}
-        {{- end }}
-      {{- if .Values.application.volumes }}
+          {{- end}}
+      {{- if or .secrets .volumes }}
       volumes:
-        {{- range .Values.application.volumes }}
-        - name: {{ .name }}
+        {{- range .volumes }}
+        - name: volume-{{ .name }}-{{ $.Values.environment }}
           persistentVolumeClaim:
-            claimName: {{ .name }}
+            claimName: volume-{{ .name }}-{{ $.Values.environment }}
+        {{- end }}
+        {{- if .secrets }}
+        - name: secrets-{{ .name }}-{{ $.Values.environment }}
+          secret:
+            secretName: secrets-{{ .name }}-{{ $.Values.environment }}
         {{- end }}
       {{- end }}
       imagePullSecrets:
         - name: regcred
+---
+{{- end }}

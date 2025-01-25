@@ -1,29 +1,256 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
   "properties": {
-    "application": {
-      "description": "yaml-language-server: $schema=values.schema.json",
-      "properties": {
-        "port": {
-          "default": 80,
-          "description": "image:",
-          "required": [],
-          "title": "port",
-          "type": "integer"
+    "deployments": {
+      "additionalProperties": false,
+      "description": "Configuration for the container image to be used in the Deployment. This is used to specify the container image, pull policy, and container port.\n",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "environment": {
+            "additionalProperties": true,
+            "description": "Configurations for environment variables loaded from a ConfigMap. This allows the container to access configuration values via environment variables, specified as key-value pairs.\n",
+            "required": [],
+            "type": "object"
+          },
+          "exposeService": {
+            "description": "Whether to expose the container as a Service. One and only one of the containers in the Deployment should have this set to true.\n",
+            "examples": [
+              "true"
+            ],
+            "required": [],
+            "type": "boolean"
+          },
+          "image": {
+            "description": "Container image to be used.",
+            "examples": [
+              "nginx:latest"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the container.",
+            "examples": [
+              "my-container"
+            ],
+            "pattern": "^[a-z0-9-]+$",
+            "required": [],
+            "type": "string"
+          },
+          "port": {
+            "description": "Port to expose on the container.",
+            "examples": [
+              "80"
+            ],
+            "required": [],
+            "type": "integer"
+          },
+          "pullPolicy": {
+            "description": "Pull policy for the container image.",
+            "enum": [
+              "Always",
+              "IfNotPresent",
+              "Never"
+            ],
+            "examples": [
+              "Always"
+            ],
+            "required": []
+          },
+          "readinessProbe": {
+            "additionalProperties": false,
+            "description": "Configuration for the readiness probe to check if the container is ready to serve traffic. This is used to determine when the container is ready to accept requests.\n",
+            "properties": {
+              "initialDelaySeconds": {
+                "description": "Number of seconds after the container has started before the readiness probe is initiated.",
+                "examples": [
+                  "5"
+                ],
+                "required": [],
+                "type": "integer"
+              },
+              "path": {
+                "description": "Path to check for the HTTP request.",
+                "examples": [
+                  "/healthz"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "periodSeconds": {
+                "description": "How often (in seconds) to perform the readiness probe.",
+                "examples": [
+                  "10"
+                ],
+                "required": [],
+                "type": "integer"
+              },
+              "port": {
+                "description": "Port to check for the HTTP request.",
+                "examples": [
+                  "8080"
+                ],
+                "required": [],
+                "type": "integer"
+              },
+              "timeoutSeconds": {
+                "description": "Number of seconds after which the readiness probe times out.",
+                "examples": [
+                  "1"
+                ],
+                "required": [],
+                "type": "integer"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "replicas": {
+            "description": "Number of replicas for the Deployment.",
+            "examples": [
+              "3"
+            ],
+            "maximum": 3,
+            "minimum": 1,
+            "required": [],
+            "type": "integer"
+          },
+          "resources": {
+            "additionalProperties": false,
+            "description": "Resource limits and requests for the container.",
+            "properties": {
+              "limits": {
+                "additionalProperties": false,
+                "description": "Maximum resources the container can use.",
+                "properties": {
+                  "cpu": {
+                    "description": "Maximum CPU the container can use.",
+                    "examples": [
+                      "200m"
+                    ],
+                    "pattern": "^[1-9][0-9]*m?$",
+                    "required": [],
+                    "type": "string"
+                  },
+                  "memory": {
+                    "description": "Maximum memory the container can use.",
+                    "examples": [
+                      "256Mi"
+                    ],
+                    "pattern": "^[1-9][0-9]*[KMGTE]i?$",
+                    "required": [],
+                    "type": "string"
+                  }
+                },
+                "required": [],
+                "type": "object"
+              },
+              "requests": {
+                "additionalProperties": false,
+                "description": "Minimum resources guaranteed for the container.",
+                "properties": {
+                  "cpu": {
+                    "description": "Minimum CPU guaranteed for the container.",
+                    "examples": [
+                      "100m"
+                    ],
+                    "pattern": "^[1-9][0-9]*m?$",
+                    "required": [],
+                    "type": "string"
+                  },
+                  "memory": {
+                    "description": "Minimum memory guaranteed for the container.",
+                    "examples": [
+                      "128Mi"
+                    ],
+                    "pattern": "^[1-9][0-9]*[KMGTE]i?$",
+                    "required": [],
+                    "type": "string"
+                  }
+                },
+                "required": [],
+                "type": "object"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "secrets": {
+            "additionalProperties": true,
+            "description": "Secrets, to be mounted as a volume, for the container. This is used to provide sensitive information (e.g., API keys, credentials) to the container. These will be mounted to the /secrets directory inside the container.\n",
+            "required": [],
+            "type": "object"
+          },
+          "volumes": {
+            "description": "Configurations for additional volumes to be mounted into the container. The key of each volume object is the name of the volume.\n",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "mountPath": {
+                  "description": "Path inside the container where the volume will be mounted.",
+                  "examples": [
+                    "/data"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Name of the volume.",
+                  "examples": [
+                    "my-volume"
+                  ],
+                  "pattern": "^[a-z0-9-]+$",
+                  "required": [],
+                  "type": "string"
+                },
+                "readOnly": {
+                  "description": "Whether the volume should be mounted as read-only.",
+                  "examples": [
+                    "true"
+                  ],
+                  "required": [],
+                  "type": "boolean"
+                },
+                "size": {
+                  "description": "Size of the volume.",
+                  "examples": [
+                    "5Gi"
+                  ],
+                  "pattern": "^[1-9][0-9]*[KMGTE]i?$",
+                  "required": [],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "mountPath",
+                "size"
+              ],
+              "type": "object"
+            },
+            "required": [],
+            "type": "array"
+          }
         },
-        "version": {
-          "default": "not set",
-          "required": [],
-          "title": "version",
-          "type": "string"
-        }
+        "required": [
+          "name",
+          "image"
+        ],
+        "type": "object"
       },
-      "required": [
-        "version",
-        "port"
-      ],
-      "title": "application",
-      "type": "object"
+      "required": [],
+      "title": "deployments",
+      "type": "array"
+    },
+    "environment": {
+      "additionalProperties": false,
+      "default": "prod",
+      "description": "Environment in which the application is being deployed. This is used in the Deployment metadata labels. For example, if the environment is set to \"prod\", the Deployment name will be \"my-app-prod\".",
+      "required": [],
+      "title": "environment",
+      "type": "string"
     },
     "global": {
       "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
@@ -32,14 +259,49 @@
       "type": "object"
     },
     "ingress": {
-      "default": "",
+      "additionalProperties": false,
+      "description": "Configuration for the Ingress resource to expose the application. This is used to specify the subdomain, URL prefix.\n",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "subdomain": {
+            "description": "Subdomain to be used for the Ingress.",
+            "examples": [
+              "my-app"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "urlPrefix": {
+            "description": "URL prefix to be used for the Ingress.",
+            "examples": [
+              "/app"
+            ],
+            "required": [],
+            "type": "string"
+          }
+        },
+        "required": [
+          "subdomain"
+        ],
+        "type": "object"
+      },
       "required": [],
       "title": "ingress",
-      "type": "null"
+      "type": "array"
+    },
+    "version": {
+      "additionalProperties": false,
+      "default": "not set",
+      "description": "Version of the application being deployed. This is used in the Deployment metadata labels and is usually the commit hash set by the CI/CD pipeline.",
+      "required": [],
+      "title": "version",
+      "type": "string"
     }
   },
   "required": [
-    "application",
+    "environment",
+    "version",
     "ingress"
   ],
   "type": "object"
