@@ -1,33 +1,30 @@
-{{- range .Values.deployments }}
+{{- range .Values.statefulSets }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: {{ .name }}-{{ $.Values.environment }}
+  name: {{ .name }}
   namespace: {{ template "app.namespace" $ | default "default" }}
 spec:
+  serviceName: {{ .serviceName | default .name }}
+  replicas: {{ .replicas | default 1 }}
+  updateStrategy:
+    type: {{ .updateStrategy | default "RollingUpdate" }}
   selector:
     matchLabels:
       app: {{ .name }}
-  replicas: {{ .replicas | default 1 }}
   template:
     metadata:
       labels:
         app: {{ .name }}
-        version: "{{ $.Values.version }}"
+        version: "v1" # hard coding to reduce unnecessary restarts on statefulsets
     spec:
-      {{- if .initContainer }}
-      initContainers:
-        - name: {{ .initContainer.name }}
-          image: {{ .initContainer.image }}
-          command: {{ .initContainer.command | toYaml | nindent 12 }}
-      {{- end }}
       containers:
         - name: {{ .name }}
           image: {{ .image }}
           imagePullPolicy: {{ .pullPolicy | default "Always" }}
-          {{- if .containerPort }}
+          {{- if .service }}
           ports:
-            - containerPort: {{ .containerPort }}
+            - containerPort: {{ .service.targetPort | default 80 }}
           {{- end }}
           {{- if .readinessProbe }}
           readinessProbe:
@@ -81,13 +78,8 @@ spec:
               readOnly: true
             {{- end }}
           {{- end}}
-      {{- if or .config .secrets .volumes }}
+      {{- if or .config .secrets }}
       volumes:
-        {{- range .volumes }}
-        - name: {{ .name }}
-          persistentVolumeClaim:
-            claimName: {{ .name }}
-        {{- end }}
         {{- if .config }}
         - name: config-file-{{ .name }}
           configMap:
@@ -101,5 +93,15 @@ spec:
       {{- end }}
       imagePullSecrets:
         - name: regcred
+  volumeClaimTemplates:
+    {{- range .volumes }}
+    - metadata:
+        name: {{ .name }}
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .size | default "1Gi" }}
+    {{- end }}
 ---
 {{- end }}
