@@ -41,14 +41,6 @@
             ],
             "type": "object"
           },
-          "containerPort": {
-            "description": "Port to expose on the container.",
-            "examples": [
-              "80"
-            ],
-            "required": [],
-            "type": "integer"
-          },
           "environment": {
             "additionalProperties": true,
             "description": "Configurations for environment variables loaded from a ConfigMap. This allows the container to access configuration values via environment variables, specified as key-value pairs.\n",
@@ -62,6 +54,32 @@
             ],
             "required": [],
             "type": "string"
+          },
+          "ingress": {
+            "additionalProperties": false,
+            "description": "Configuration for the Ingress to expose the container. This is used to expose the container to the outside world. Only one container should have an Ingress defined.\n",
+            "properties": {
+              "subdomain": {
+                "description": "Subdomain to use for the Ingress.",
+                "examples": [
+                  "my-app"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "urlPrefix": {
+                "description": "URL prefix to use for the Ingress.",
+                "examples": [
+                  "/my-app"
+                ],
+                "required": [],
+                "type": "string"
+              }
+            },
+            "required": [
+              "subdomain"
+            ],
+            "type": "object"
           },
           "initContainer": {
             "additionalProperties": false,
@@ -277,16 +295,8 @@
             "additionalProperties": false,
             "description": "Configuration for the Service to expose the container. This is used to expose the container to other services in the cluster.\n",
             "properties": {
-              "headless": {
-                "description": "Whether the Service is headless.",
-                "examples": [
-                  "true"
-                ],
-                "required": [],
-                "type": "boolean"
-              },
               "port": {
-                "description": "Port to expose on the Service.",
+                "description": "Port to expose on the Service, which will be mapped to the container port.",
                 "examples": [
                   "80"
                 ],
@@ -304,6 +314,14 @@
                 ],
                 "required": [],
                 "type": "string"
+              },
+              "targetPort": {
+                "description": "Port to expose on the container. This should be the port the application itself is listening on.",
+                "examples": [
+                  "80"
+                ],
+                "required": [],
+                "type": "integer"
               },
               "type": {
                 "description": "Type of the Service.",
@@ -357,7 +375,7 @@
                   "examples": [
                     "5Gi"
                   ],
-                  "pattern": "^[1-9][0-9]*[KMGTE]i?$",
+                  "pattern": "^([1-9][0-9]*[KMGTE]i?)|\\$\\{[a-zA-Z-_]+\\}$",
                   "required": [],
                   "type": "string"
                 }
@@ -436,14 +454,6 @@
               "fileVariable"
             ],
             "type": "object"
-          },
-          "containerPort": {
-            "description": "Port to expose on the container.",
-            "examples": [
-              "80"
-            ],
-            "required": [],
-            "type": "integer"
           },
           "environment": {
             "additionalProperties": true,
@@ -632,16 +642,8 @@
             "additionalProperties": false,
             "description": "Configuration for the Service to expose the container. This is used to expose the container to other services in the cluster.\n",
             "properties": {
-              "headless": {
-                "description": "Whether the Service is headless.",
-                "examples": [
-                  "true"
-                ],
-                "required": [],
-                "type": "boolean"
-              },
               "port": {
-                "description": "Port to expose on the Service.",
+                "description": "Port to expose on the Service. This will be mapped to the container port.",
                 "examples": [
                   "80"
                 ],
@@ -659,6 +661,14 @@
                 ],
                 "required": [],
                 "type": "string"
+              },
+              "targetPort": {
+                "description": "Port to expose on the container. This should be the port the application itself is listening on.",
+                "examples": [
+                  "80"
+                ],
+                "required": [],
+                "type": "integer"
               },
               "type": {
                 "description": "Type of the Service.",
@@ -678,9 +688,21 @@
             "type": "object"
           },
           "serviceName": {
-            "description": "Name of the Service to expose the container.",
+            "description": "Name to provide as the statefulSet serviceName.",
             "examples": [
               "my-service"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "updateStrategy": {
+            "description": "Update strategy for the Deployment.",
+            "enum": [
+              "RollingUpdate",
+              "OnDelete"
+            ],
+            "examples": [
+              "RollingUpdate"
             ],
             "required": [],
             "type": "string"
@@ -720,7 +742,7 @@
                   "examples": [
                     "5Gi"
                   ],
-                  "pattern": "^[1-9][0-9]*[KMGTE]i?$",
+                  "pattern": "^([1-9][0-9]*[KMGTE]i?)|\\$\\{[a-zA-Z-_]+\\}$",
                   "required": [],
                   "type": "string"
                 }

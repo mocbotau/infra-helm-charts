@@ -1,19 +1,19 @@
-# Ensure that only one container has exposeService set to true
+# Ensure that only one container has an ingress
 {{- $exposedContainers := 0 -}}
 {{- range .Values.deployments }}
-  {{- if .exposeService }}
+  {{- if .ingress }}
     {{- $exposedContainers = add $exposedContainers 1 }}
   {{- end }}
 {{- end }}
 {{- if ne $exposedContainers 1 }}
-  {{- fail "Error: One container and one container only should have exposeService set to true." }}
+  {{- fail "Error: One container and one container only should have an ingress defined" }}
 {{- end }}
 
 {{- range .Values.deployments }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .name }}-{{ $.Values.environment }}
+  name: {{ .name }}
   namespace: {{ template "app.namespace" $ | default "default" }}
 spec:
   selector:
@@ -26,21 +26,29 @@ spec:
         app: {{ .name }}
         version: "{{ $.Values.version }}"
     spec:
+      {{- if .initContainer }}
+      initContainers:
+        - name: {{ .initContainer.name }}
+          image: {{ .initContainer.image }}
+          command: {{ .initContainer.command | toYaml | nindent 12 }}
+      {{- end }}
       containers:
         - name: {{ .name }}
           image: {{ .image }}
           imagePullPolicy: {{ .pullPolicy | default "Always" }}
-          {{- if .exposeService }}
+          {{- if .service }}
           ports:
-            - containerPort: {{ .port | default 8080 }}
-              name: app-port
+            - containerPort: {{ .service.targetPort | default 80 }}
           {{- end }}
           {{- if .readinessProbe }}
           readinessProbe:
-            {{- if .readinessProbe }}
+            {{- if .readinessProbe.httpGet }}
             httpGet:
-              path: {{ .readinessProbe.path }}
-              port: {{ .readinessProbe.port }}
+              path: {{ .readinessProbe.httpGet.path }}
+              port: {{ .readinessProbe.httpGet.port }}
+            {{- else if .readinessProbe.tcpSocket }}
+            tcpSocket:
+              port: {{ .readinessProbe.tcpSocket.port }}
             {{- end }}
             initialDelaySeconds: {{ .readinessProbe.initialDelaySeconds | default 5 }}
             periodSeconds: {{ .readinessProbe.periodSeconds | default 10 }}
@@ -62,34 +70,44 @@ spec:
           {{- if .environment }}
           envFrom:
             - configMapRef:
-                name: env-{{ .name }}-{{ $.Values.environment }}
+                name: env-{{ .name }}
           {{- end }}
-          {{- if or .secrets .volumes }}
+          {{- if or .config .secrets .volumes }}
           volumeMounts:
             {{- if .volumes }}
             {{- range .volumes }}
-            - name: volume-{{ .name }}-{{ $.Values.environment }}
+            - name: vol-{{ .name }}
               mountPath: {{ .mountPath }}
               readOnly: {{ .readOnly | default false }}
             {{- end }}
             {{- end }}
+            {{- if .config }}
+            - name: config-file-{{ .name }}
+              mountPath: {{ .config.mountPath | default "/config" }}
+              readOnly: true
+            {{- end }}
             {{- if .secrets }}
-            - name: secrets-{{ .name }}-{{ $.Values.environment }}
+            - name: secrets-{{ .name }}
               mountPath: /secrets
               readOnly: true
             {{- end }}
           {{- end}}
-      {{- if or .secrets .volumes }}
+      {{- if or .config .secrets .volumes }}
       volumes:
         {{- range .volumes }}
-        - name: volume-{{ .name }}-{{ $.Values.environment }}
+        - name: vol-{{ .name }}
           persistentVolumeClaim:
-            claimName: volume-{{ .name }}-{{ $.Values.environment }}
+            claimName: vol-{{ .name }}
+        {{- end }}
+        {{- if .config }}
+        - name: config-file-{{ .name }}
+          configMap:
+            name: config-file-{{ .name }}
         {{- end }}
         {{- if .secrets }}
-        - name: secrets-{{ .name }}-{{ $.Values.environment }}
+        - name: secrets-{{ .name }}
           secret:
-            secretName: secrets-{{ .name }}-{{ $.Values.environment }}
+            secretName: secrets-{{ .name }}
         {{- end }}
       {{- end }}
       imagePullSecrets:

@@ -46,10 +46,6 @@ version: "not set"
 #       description: Pull policy for the container image.
 #       examples: [Always]
 #       enum: [Always, IfNotPresent, Never]
-#     containerPort:
-#       type: integer
-#       description: Port to expose on the container.
-#       examples: [80]
 #     replicas:
 #       type: integer
 #       description: Number of replicas for the Deployment.
@@ -68,19 +64,36 @@ version: "not set"
 #           description: Type of the Service.
 #           examples: [ClusterIP]
 #           enum: [ClusterIP, NodePort, LoadBalancer]
-#         headless:
-#           type: boolean
-#           description: Whether the Service is headless.
-#           examples: [true]
 #         port:
 #           type: integer
-#           description: Port to expose on the Service.
+#           description: Port to expose on the Service, which will be mapped to the container port.
+#           examples: [80]
+#         targetPort:
+#           type: integer
+#           description: Port to expose on the container. This should be the port the application itself is listening on.
 #           examples: [80]
 #         protocol:
 #           type: string
 #           description: Protocol to use for the Service.
 #           examples: [TCP]
 #           enum: [TCP, UDP]
+#     ingress:
+#       type: object
+#       additionalProperties: false
+#       required: [subdomain]
+#       description: >
+#         Configuration for the Ingress to expose the container.
+#         This is used to expose the container to the outside world.
+#         Only one container should have an Ingress defined.
+#       properties:
+#         subdomain:
+#           type: string
+#           description: Subdomain to use for the Ingress.
+#           examples: [my-app]
+#         urlPrefix:
+#           type: string
+#           description: URL prefix to use for the Ingress.
+#           examples: [/my-app]
 #     initContainer:
 #       type: object
 #       additionalProperties: false
@@ -243,7 +256,7 @@ version: "not set"
 #             type: string
 #             description: Size of the volume.
 #             examples: ["5Gi"]
-#             pattern: ^[1-9][0-9]*[KMGTE]i?$
+#             pattern: ^([1-9][0-9]*[KMGTE]i?)|\$\{[a-zA-Z-_]+\}$
 #           readOnly:
 #             type: boolean
 #             description: Whether the volume should be mounted as read-only.
@@ -276,19 +289,20 @@ deployments: []
 #       description: Pull policy for the container image.
 #       examples: [Always]
 #       enum: [Always, IfNotPresent, Never]
-#     containerPort:
-#       type: integer
-#       description: Port to expose on the container.
-#       examples: [80]
 #     replicas:
 #       type: integer
 #       description: Number of replicas for the Deployment.
 #       examples: [3]
 #       minimum: 1
 #       maximum: 3
+#     updateStrategy:
+#       type: string
+#       description: Update strategy for the Deployment.
+#       examples: [RollingUpdate]
+#       enum: [RollingUpdate, OnDelete]
 #     serviceName:
 #       type: string
-#       description: Name of the Service to expose the container.
+#       description: Name to provide as the statefulSet serviceName.
 #       examples: [my-service]
 #     service:
 #       type: object
@@ -302,13 +316,13 @@ deployments: []
 #           description: Type of the Service.
 #           examples: [ClusterIP]
 #           enum: [ClusterIP, NodePort, LoadBalancer]
-#         headless:
-#           type: boolean
-#           description: Whether the Service is headless.
-#           examples: [true]
 #         port:
 #           type: integer
-#           description: Port to expose on the Service.
+#           description: Port to expose on the Service. This will be mapped to the container port.
+#           examples: [80]
+#         targetPort:
+#           type: integer
+#           description: Port to expose on the container. This should be the port the application itself is listening on.
 #           examples: [80]
 #         protocol:
 #           type: string
@@ -456,7 +470,7 @@ deployments: []
 #             type: string
 #             description: Size of the volume.
 #             examples: ["5Gi"]
-#             pattern: ^[1-9][0-9]*[KMGTE]i?$
+#             pattern: ^([1-9][0-9]*[KMGTE]i?)|\$\{[a-zA-Z-_]+\}$
 #           readOnly:
 #             type: boolean
 #             description: Whether the volume should be mounted as read-only.

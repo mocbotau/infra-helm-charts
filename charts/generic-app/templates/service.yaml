@@ -3,18 +3,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .name }}
+  name: service-{{ .name }}
   namespace: {{ template "app.namespace" $ | default "default" }}
   labels:
     app: {{ .name }}
 spec:
   type: {{ .service.type | default "ClusterIP" }}
-  {{- if .service.headless }}
-  clusterIP: None
-  {{- end }}
   ports:
     - port: {{ .service.port | default 80 }}
-      targetPort: {{ .containerPort | default .service.port | default 80 }}
+      targetPort: {{ .service.targetPort | default 80 }}
       protocol: {{ .service.protocol | default "TCP" }}
   selector:
     app: {{ .name }}

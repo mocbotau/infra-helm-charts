@@ -5,11 +5,6 @@ repos:
     hooks:
       - id: helm-schema
         args:
-          - "--dependencies-filter=discord-bot"
+          - "--dependencies-filter=generic-app"
           - "--skip-auto-generation=additionalProperties"
-          - "--append-newline"
-
-      - id: helm-schema
-        args:
-          - "--dependencies-filter=web-app"
           - "--append-newline"
