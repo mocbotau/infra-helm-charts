@@ -5,8 +5,8 @@
     {{- $exposedContainers = add $exposedContainers 1 }}
   {{- end }}
 {{- end }}
-{{- if ne $exposedContainers 1 }}
-  {{- fail "Error: One container and one container only should have an ingress defined" }}
+{{- if gt $exposedContainers 1 }}
+  {{- fail "Error: Only one container at max should have an ingress defined" }}
 {{- end }}
 
 {{- range .Values.deployments }}
