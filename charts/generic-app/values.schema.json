@@ -34,6 +34,14 @@
                 ],
                 "required": [],
                 "type": "string"
+              },
+              "subPath": {
+                "description": "Subpath inside the volume to mount the configuration file. This can be used in conjunction with mountPath to mount a file to an existing folder inside the volume. In this case, the subPath should be the name of the file, and the mountPath should be the full path to the file including the file.\n",
+                "examples": [
+                  "config.yaml"
+                ],
+                "required": [],
+                "type": "string"
               }
             },
             "required": [
@@ -316,7 +324,7 @@
                 "type": "string"
               },
               "targetPort": {
-                "description": "Port to expose on the container. This should be the port the application itself is listening on.",
+                "description": "Port to expose on the container. This should be the port the application itself is listening on. If not specified, it will default to the port specified in the service.port field.\n",
                 "examples": [
                   "80"
                 ],
@@ -445,6 +453,14 @@
                 "description": "Path inside the container where the configuration file will be mounted.",
                 "examples": [
                   "/config"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "subPath": {
+                "description": "Subpath inside the volume to mount the configuration file. This can be used in conjunction with mountPath to mount a file to an existing folder inside the volume. In this case, the subPath should be the name of the file, and the mountPath should be the full path to the file including the file.\n",
+                "examples": [
+                  "config.yaml"
                 ],
                 "required": [],
                 "type": "string"
@@ -663,7 +679,7 @@
                 "type": "string"
               },
               "targetPort": {
-                "description": "Port to expose on the container. This should be the port the application itself is listening on.",
+                "description": "Port to expose on the container. This should be the port the application itself is listening on. If not specified, it will default to the port specified in the service.port field.\n",
                 "examples": [
                   "80"
                 ],

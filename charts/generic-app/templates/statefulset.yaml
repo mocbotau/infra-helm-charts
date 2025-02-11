@@ -70,6 +70,7 @@ spec:
             {{- if .config }}
             - name: config-file-{{ .name }}
               mountPath: {{ .config.mountPath | default "/config" }}
+              subPath: {{ .config.subPath | default "" }}
               readOnly: true
             {{- end }}
             {{- if .secrets }}
