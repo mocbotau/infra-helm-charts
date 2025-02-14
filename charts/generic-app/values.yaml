@@ -82,7 +82,6 @@ version: "not set"
 #     ingress:
 #       type: object
 #       additionalProperties: false
-#       required: [subdomain]
 #       description: >
 #         Configuration for the Ingress to expose the container.
 #         This is used to expose the container to the outside world.

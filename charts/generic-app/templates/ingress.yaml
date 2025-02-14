@@ -12,10 +12,10 @@ metadata:
 spec:
   ingressClassName: traefik
   tls:
-    - hosts: ["{{ $d.ingress.subdomain }}.masterofcubesau.com"]
+    - hosts: ["{{ if $d.ingress.subdomain }}{{ $d.ingress.subdomain }}.{{ end }}masterofcubesau.com"]
       secretName: {{ template "app.service" $ }}-tls
   rules:
-    - host: "{{ $d.ingress.subdomain }}.masterofcubesau.com"
+    - host: "{{ if $d.ingress.subdomain }}{{ $d.ingress.subdomain }}.{{ end }}masterofcubesau.com"
       http:
         paths:
           - path: {{ $d.ingress.urlPrefix | default "/" }}

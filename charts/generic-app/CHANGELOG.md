@@ -1,5 +1,9 @@
 ## `generic-app` chart
 
+Version 0.1.3
+
+- Add support for no subdomain being provided, which will just use the base domain.
+
 Version 0.1.2
 
 - Add support for multiple containers with ingress annotations.

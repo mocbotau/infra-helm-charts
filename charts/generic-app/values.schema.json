@@ -84,9 +84,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "subdomain"
-            ],
+            "required": [],
             "type": "object"
           },
           "initContainer": {
