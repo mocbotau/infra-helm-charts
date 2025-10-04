@@ -7,15 +7,15 @@ metadata:
   namespace: {{ template "app.namespace" $ | default "default" }}
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "{{ regexReplaceAll `\..*` $d.ingress.domain `` }}-letsencrypt-prod"
 
 spec:
   ingressClassName: traefik
   tls:
-    - hosts: ["{{ if $d.ingress.subdomain }}{{ $d.ingress.subdomain }}.{{ end }}masterofcubesau.com"]
+    - hosts: ["{{ if $d.ingress.subdomain }}{{ $d.ingress.subdomain }}.{{ end }}{{$d.ingress.domain}}"]
       secretName: {{ $d.name }}-tls
   rules:
-    - host: "{{ if $d.ingress.subdomain }}{{ $d.ingress.subdomain }}.{{ end }}masterofcubesau.com"
+    - host: "{{ if $d.ingress.subdomain }}{{ $d.ingress.subdomain }}.{{ end }}{{$d.ingress.domain}}"
       http:
         paths:
           - path: {{ $d.ingress.urlPrefix | default "/" }}

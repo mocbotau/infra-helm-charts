@@ -87,6 +87,10 @@ version: "not set"
 #         This is used to expose the container to the outside world.
 #         Only one container should have an Ingress defined.
 #       properties:
+#         domain:
+#           type: string
+#           description: Domain to use for the Ingress.
+#           examples: [masterofcubesau.com]
 #         subdomain:
 #           type: string
 #           description: Subdomain to use for the Ingress.

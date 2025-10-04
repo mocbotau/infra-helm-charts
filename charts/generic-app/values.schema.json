@@ -67,6 +67,14 @@
             "additionalProperties": false,
             "description": "Configuration for the Ingress to expose the container. This is used to expose the container to the outside world. Only one container should have an Ingress defined.\n",
             "properties": {
+              "domain": {
+                "description": "Domain to use for the Ingress.",
+                "examples": [
+                  "masterofcubesau.com"
+                ],
+                "required": [],
+                "type": "string"
+              },
               "subdomain": {
                 "description": "Subdomain to use for the Ingress.",
                 "examples": [
