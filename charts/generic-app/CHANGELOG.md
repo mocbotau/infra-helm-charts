@@ -1,5 +1,17 @@
 ## `generic-app` chart
 
+Version 0.2.2
+
+- Fixed incorrect regex escaping in regexReplaceAll function arguments.
+
+Version 0.2.1
+
+- Fixed incorrect string representation in regexReplaceAll function arguments.
+
+Version 0.2.0
+
+- Add support for specifying what domain to deploy to.
+
 Version 0.1.3
 
 - Add support for no subdomain being provided, which will just use the base domain.
