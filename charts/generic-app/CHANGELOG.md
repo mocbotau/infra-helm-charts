@@ -1,5 +1,9 @@
 ## `generic-app` chart
 
+Version 0.3.6
+
+- Add support to not mount secrets volume if there are no secret files being created
+
 Version 0.3.5
 
 - Fix missing conditional for secretProviderClass and syncKubernetesSecrets

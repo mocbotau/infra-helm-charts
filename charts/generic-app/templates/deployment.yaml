@@ -82,13 +82,13 @@ spec:
               subPath: {{ .config.subPath | default "" }}
               readOnly: true
             {{- end }}
-            {{- if .secretProviderClass }}
+            {{- if and .secretProviderClass (include "app.hasSecretFiles" . | eq "true") }}
             - name: secrets-{{ .name }}
               mountPath: /secrets
               readOnly: true
             {{- end }}
           {{- end}}
-      {{- if or .config .secretProviderClass .volumes }}
+      {{- if or .config (and .secretProviderClass (include "app.hasSecretFiles" . | eq "true")) .volumes }}
       volumes:
         {{- range .volumes }}
         - name: vol-{{ .name }}
@@ -100,7 +100,7 @@ spec:
           configMap:
             name: config-file-{{ .name }}
         {{- end }}
-        {{- if .secretProviderClass }}
+        {{- if and .secretProviderClass (include "app.hasSecretFiles" . | eq "true") }}
         - name: secrets-{{ .name }}
           csi:
             driver: secrets-store.csi.k8s.io
