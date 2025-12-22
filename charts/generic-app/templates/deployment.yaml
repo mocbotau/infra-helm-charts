@@ -103,7 +103,5 @@ spec:
               secretProviderClass: secrets-{{ .name }}
         {{- end }}
       {{- end }}
-      imagePullSecrets:
-        - name: regcred
 ---
 {{- end }}

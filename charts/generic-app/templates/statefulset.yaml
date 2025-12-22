@@ -95,8 +95,6 @@ spec:
               secretProviderClass: secrets-{{ .name }}
         {{- end }}
       {{- end }}
-      imagePullSecrets:
-        - name: regcred
   volumeClaimTemplates:
     {{- range .volumes }}
     - metadata:

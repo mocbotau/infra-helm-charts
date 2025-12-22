@@ -1,5 +1,9 @@
 ## `generic-app` chart
 
+Version 0.3.3
+
+- Remove extraneous imagePullSecrets from deployment and statefulsets
+
 Version 0.3.2
 
 - Add default identity ID in secret provider class
