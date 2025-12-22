@@ -1,5 +1,13 @@
 ## `generic-app` chart
 
+Version 0.3.2
+
+- Add default identity ID in secret provider class
+
+Version 0.3.1
+
+- Fix missing conditionals in secret provider class
+
 Version 0.3.0
 
 - Replace legacy secrets management with integration of external secrets manager
