@@ -1,29 +1,5 @@
 ## `generic-app` chart
 
-Version 0.3.6
-
-- Add support to not mount secrets volume if there are no secret files being created
-
-Version 0.3.5
-
-- Fix missing conditional for secretProviderClass and syncKubernetesSecrets
-
-Version 0.3.4
-
-- Add support for CSI secrets as env variables
-
-Version 0.3.3
-
-- Remove extraneous imagePullSecrets from deployment and statefulsets
-
-Version 0.3.2
-
-- Add default identity ID in secret provider class
-
-Version 0.3.1
-
-- Fix missing conditionals in secret provider class
-
 Version 0.3.0
 
 - Replace legacy secrets management with integration of external secrets manager

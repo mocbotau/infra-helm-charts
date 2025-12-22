@@ -336,12 +336,21 @@
                 "type": "string"
               },
               "secrets": {
-                "description": "List of secrets to fetch from Infisical and mount as files.",
+                "description": "List of secrets to fetch from Infisical. All secrets are mounted as files at /secrets/. Optionally, they can also be loaded as environment variables.\n",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
+                    "envName": {
+                      "description": "Name of the environment variable to create when syncAsKubernetesSecret is enabled. If specified, the secret will be available as an environment variable with this name. Only used when syncAsKubernetesSecret is true.\n",
+                      "examples": [
+                        "DATABASE_URL",
+                        "API_KEY"
+                      ],
+                      "required": [],
+                      "type": "string"
+                    },
                     "fileName": {
-                      "description": "Name of the file to create in the mounted volume.",
+                      "description": "Name of the file to create in the mounted volume at /secrets/.",
                       "examples": [
                         "db-credentials",
                         "api-key"
@@ -377,6 +386,14 @@
                 },
                 "required": [],
                 "type": "array"
+              },
+              "syncAsKubernetesSecret": {
+                "description": "Whether to sync secrets from SecretProviderClass to a Kubernetes Secret object. This allows secrets to be loaded as environment variables using envFrom. When enabled, secrets with envName specified will be available as env vars.\n",
+                "examples": [
+                  "true"
+                ],
+                "required": [],
+                "type": "boolean"
               },
               "useDefaultAudience": {
                 "description": "Whether to use the default audience for authentication. Defaults to true.",
@@ -776,7 +793,7 @@
                 "type": "string"
               },
               "secrets": {
-                "description": "List of secrets to fetch from Infisical. Secrets can be mounted as files (if fileName is provided), loaded as env vars (if envName is provided), or both.\n",
+                "description": "List of secrets to fetch from Infisical. All secrets are mounted as files at /secrets/. Optionally, they can also be loaded as environment variables.\n",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -790,7 +807,7 @@
                       "type": "string"
                     },
                     "fileName": {
-                      "description": "Name of the file to create in the mounted volume. If omitted, the secret will only be available as an environment variable (when envName is specified).\n",
+                      "description": "Name of the file to create in the mounted volume at /secrets/.",
                       "examples": [
                         "db-credentials",
                         "api-key"
@@ -819,6 +836,7 @@
                     }
                   },
                   "required": [
+                    "fileName",
                     "secretKey"
                   ],
                   "type": "object"
