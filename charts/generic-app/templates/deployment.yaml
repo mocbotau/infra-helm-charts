@@ -56,10 +56,16 @@ spec:
               memory: {{ .resources.requests.memory | default "128Mi" }}
             {{- end }}
           {{- end }}
-          {{- if .environment }}
+          {{- if or .environment .secretProviderClass.syncAsKubernetesSecret }}
           envFrom:
+            {{- if .environment }}
             - configMapRef:
                 name: env-{{ .name }}
+            {{- end }}
+            {{- if .secretProviderClass.syncAsKubernetesSecret }}
+            - secretRef:
+                name: secrets-{{ .name }}
+            {{- end }}
           {{- end }}
           {{- if or .config .secretProviderClass .volumes }}
           volumeMounts:

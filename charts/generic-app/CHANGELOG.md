@@ -1,5 +1,9 @@
 ## `generic-app` chart
 
+Version 0.3.4
+
+- Add support for CSI secrets as env variables
+
 Version 0.3.3
 
 - Remove extraneous imagePullSecrets from deployment and statefulsets
