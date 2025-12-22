@@ -299,9 +299,94 @@
             "required": [],
             "type": "object"
           },
-          "secrets": {
-            "additionalProperties": true,
-            "description": "Secrets, to be mounted as a volume, for the container. This is used to provide sensitive information (e.g., API keys, credentials) to the container. These will be mounted to the /secrets directory inside the container.\n",
+          "secretProviderClass": {
+            "additionalProperties": false,
+            "description": "Configuration for using SecretProviderClass with CSI driver to mount secrets from external secret stores (e.g., Infisical). Secrets will be mounted to the /secrets directory inside the container.\n",
+            "properties": {
+              "authMethod": {
+                "description": "Authentication method for Infisical. Defaults to kubernetes.",
+                "examples": [
+                  "kubernetes"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "identityId": {
+                "description": "Optional Infisical identity ID for authentication.",
+                "examples": [
+                  "914bf541-154a-498e-abc8-25955b59dcb6"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "infisicalUrl": {
+                "description": "URL of the Infisical instance. Defaults to https://infisical.masterofcubesau.com",
+                "examples": [
+                  "https://infisical.masterofcubesau.com"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "projectId": {
+                "description": "The Infisical project ID where secrets are stored.",
+                "examples": [
+                  "dd856d25-2961-4c5e-9280-9bcbae5d6d60"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "secrets": {
+                "description": "List of secrets to fetch from Infisical and mount as files.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "fileName": {
+                      "description": "Name of the file to create in the mounted volume.",
+                      "examples": [
+                        "db-credentials",
+                        "api-key"
+                      ],
+                      "required": [],
+                      "type": "string"
+                    },
+                    "secretKey": {
+                      "description": "Key of the secret in Infisical to fetch.",
+                      "examples": [
+                        "DATABASE_URL",
+                        "API_KEY"
+                      ],
+                      "required": [],
+                      "type": "string"
+                    },
+                    "secretPath": {
+                      "description": "Path in Infisical where the secret is located. Defaults to \"/\".",
+                      "examples": [
+                        "/",
+                        "/database",
+                        "/api"
+                      ],
+                      "required": [],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "fileName",
+                    "secretKey"
+                  ],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "useDefaultAudience": {
+                "description": "Whether to use the default audience for authentication. Defaults to true.",
+                "examples": [
+                  "true"
+                ],
+                "required": [],
+                "type": "string"
+              }
+            },
             "required": [],
             "type": "object"
           },
@@ -654,9 +739,94 @@
             "required": [],
             "type": "object"
           },
-          "secrets": {
-            "additionalProperties": true,
-            "description": "Secrets, to be mounted as a volume, for the container. This is used to provide sensitive information (e.g., API keys, credentials) to the container. These will be mounted to the /secrets directory inside the container.\n",
+          "secretProviderClass": {
+            "additionalProperties": false,
+            "description": "Configuration for using SecretProviderClass with CSI driver to mount secrets from external secret stores (e.g., Infisical). Secrets will be mounted to the /secrets directory inside the container.\n",
+            "properties": {
+              "authMethod": {
+                "description": "Authentication method for Infisical. Defaults to kubernetes.",
+                "examples": [
+                  "kubernetes"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "identityId": {
+                "description": "Optional Infisical identity ID for authentication.",
+                "examples": [
+                  "914bf541-154a-498e-abc8-25955b59dcb6"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "infisicalUrl": {
+                "description": "URL of the Infisical instance. Defaults to https://infisical.masterofcubesau.com",
+                "examples": [
+                  "https://infisical.masterofcubesau.com"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "projectId": {
+                "description": "The Infisical project ID where secrets are stored.",
+                "examples": [
+                  "dd856d25-2961-4c5e-9280-9bcbae5d6d60"
+                ],
+                "required": [],
+                "type": "string"
+              },
+              "secrets": {
+                "description": "List of secrets to fetch from Infisical and mount as files.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "fileName": {
+                      "description": "Name of the file to create in the mounted volume.",
+                      "examples": [
+                        "db-credentials",
+                        "api-key"
+                      ],
+                      "required": [],
+                      "type": "string"
+                    },
+                    "secretKey": {
+                      "description": "Key of the secret in Infisical to fetch.",
+                      "examples": [
+                        "DATABASE_URL",
+                        "API_KEY"
+                      ],
+                      "required": [],
+                      "type": "string"
+                    },
+                    "secretPath": {
+                      "description": "Path in Infisical where the secret is located. Defaults to \"/\".",
+                      "examples": [
+                        "/",
+                        "/database",
+                        "/api"
+                      ],
+                      "required": [],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "fileName",
+                    "secretKey"
+                  ],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "useDefaultAudience": {
+                "description": "Whether to use the default audience for authentication. Defaults to true.",
+                "examples": [
+                  "true"
+                ],
+                "required": [],
+                "type": "string"
+              }
+            },
             "required": [],
             "type": "object"
           },
