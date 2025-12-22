@@ -1,5 +1,9 @@
 ## `generic-app` chart
 
+Version 0.3.5
+
+- Fix missing conditional for secretProviderClass and syncKubernetesSecrets
+
 Version 0.3.4
 
 - Add support for CSI secrets as env variables
