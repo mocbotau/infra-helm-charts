@@ -58,7 +58,7 @@ spec:
             - configMapRef:
                 name: env-{{ .name }}
           {{- end }}
-          {{- if or .config .secrets .volumes }}
+          {{- if or .config .secretProviderClass .volumes }}
           volumeMounts:
             {{- if .volumes }}
             {{- range .volumes }}
@@ -73,23 +73,26 @@ spec:
               subPath: {{ .config.subPath | default "" }}
               readOnly: true
             {{- end }}
-            {{- if .secrets }}
+            {{- if .secretProviderClass }}
             - name: secrets-{{ .name }}
               mountPath: /secrets
               readOnly: true
             {{- end }}
           {{- end}}
-      {{- if or .config .secrets }}
+      {{- if or .config .secretProviderClass }}
       volumes:
         {{- if .config }}
         - name: config-file-{{ .name }}
           configMap:
             name: config-file-{{ .name }}
         {{- end }}
-        {{- if .secrets }}
+        {{- if .secretProviderClass }}
         - name: secrets-{{ .name }}
-          secret:
-            secretName: secrets-{{ .name }}
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: secrets-{{ .name }}
         {{- end }}
       {{- end }}
       imagePullSecrets:

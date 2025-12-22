@@ -1,5 +1,9 @@
 ## `generic-app` chart
 
+Version 0.3.0
+
+- Replace legacy secrets management with integration of external secrets manager
+
 Version 0.2.2
 
 - Fixed incorrect regex escaping in regexReplaceAll function arguments.
