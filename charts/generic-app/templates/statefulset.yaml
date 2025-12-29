@@ -18,95 +18,18 @@ spec:
         app: {{ .name }}
         version: "v1" # hard coding to reduce unnecessary restarts on statefulsets
     spec:
-      containers:
-        - name: {{ .name }}
-          image: {{ .image }}
-          imagePullPolicy: {{ .pullPolicy | default "Always" }}
-          {{- if .service }}
-          ports:
-            - containerPort: {{ .service.targetPort | default 80 }}
-          {{- end }}
-          {{- if .readinessProbe }}
-          readinessProbe:
-            {{- if .readinessProbe.httpGet }}
-            httpGet:
-              path: {{ .readinessProbe.httpGet.path }}
-              port: {{ .readinessProbe.httpGet.port }}
-            {{- else if .readinessProbe.tcpSocket }}
-            tcpSocket:
-              port: {{ .readinessProbe.tcpSocket.port }}
-            {{- end }}
-            initialDelaySeconds: {{ .readinessProbe.initialDelaySeconds | default 5 }}
-            periodSeconds: {{ .readinessProbe.periodSeconds | default 10 }}
-            timeoutSeconds: {{ .readinessProbe.timeoutSeconds | default 1 }}
-          {{- end }}
-          {{- if .resources }}
-          resources:
-            {{- if .resources.limits }}
-            limits:
-              cpu: {{ .resources.limits.cpu | default "200m" }}
-              memory: {{ .resources.limits.memory | default "256Mi" }}
-            {{- end }}
-            {{- if .resources.requests }}
-            requests:
-              cpu: {{ .resources.requests.cpu | default "100m" }}
-              memory: {{ .resources.requests.memory | default "128Mi" }}
-            {{- end }}
-          {{- end }}
-          {{- if or .environment (and .secretProviderClass .secretProviderClass.syncAsKubernetesSecret) }}
-          envFrom:
-            {{- if .environment }}
-            - configMapRef:
-                name: env-{{ .name }}
-            {{- end }}
-            {{- if and .secretProviderClass .secretProviderClass.syncAsKubernetesSecret }}
-            - secretRef:
-                name: secrets-{{ .name }}
-            {{- end }}
-          {{- end }}
-          {{- if or .config .secretProviderClass .volumes }}
-          volumeMounts:
-            {{- if .volumes }}
-            {{- range .volumes }}
-            - name: {{ .name }}
-              mountPath: {{ .mountPath }}
-              readOnly: {{ .readOnly | default false }}
-            {{- end }}
-            {{- end }}
-            {{- if .config }}
-            - name: config-file-{{ .name }}
-              mountPath: {{ .config.mountPath | default "/config" }}
-              subPath: {{ .config.subPath | default "" }}
-              readOnly: true
-            {{- end }}
-            {{- if .secretProviderClass }}
-            - name: secrets-{{ .name }}
-              mountPath: /secrets
-              readOnly: true
-            {{- end }}
-          {{- end}}
-      {{- if or .config .secretProviderClass }}
-      volumes:
-        {{- if .config }}
-        - name: config-file-{{ .name }}
-          configMap:
-            name: config-file-{{ .name }}
-        {{- end }}
-        {{- if .secretProviderClass }}
-        - name: secrets-{{ .name }}
-          csi:
-            driver: secrets-store.csi.k8s.io
-            readOnly: true
-            volumeAttributes:
-              secretProviderClass: secrets-{{ .name }}
-        {{- end }}
-      {{- end }}
+      {{- $context := merge (dict "isStatefulSet" true) $ -}}
+      {{- include "app.podSpec" (merge (dict "context" $context) .) | trim | nindent 6 }}
   volumeClaimTemplates:
     {{- range .volumes }}
     - metadata:
         name: {{ .name }}
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes:
+          - {{ .accessMode | default "ReadWriteOncePod" }}
+        {{- if .storageClass }}
+        storageClassName: {{ .storageClass }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .size | default "1Gi" }}

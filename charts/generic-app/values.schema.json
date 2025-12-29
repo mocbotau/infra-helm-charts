@@ -7,6 +7,12 @@
       "items": {
         "additionalProperties": false,
         "properties": {
+          "affinity": {
+            "additionalProperties": true,
+            "description": "Affinity rules for advanced pod scheduling. Supports nodeAffinity, podAffinity, and podAntiAffinity. Use this for more complex scheduling requirements like preferring certain nodes, requiring co-location with other pods, or ensuring pods are spread across zones.\n",
+            "required": [],
+            "type": "object"
+          },
           "config": {
             "additionalProperties": false,
             "description": "Configuration file to be mounted as a volume (e.g., config.yaml). This is typically used for application-specific configuration files. Pass these configuration files when running helm install using --set-file. For example: helm install my-release . --set-file appConfig=config.yaml\n",
@@ -145,6 +151,12 @@
             "required": [],
             "type": "string"
           },
+          "nodeSelector": {
+            "additionalProperties": true,
+            "description": "Node selector for scheduling pods on specific nodes. This allows you to constrain pods to run on nodes with specific labels.\n",
+            "required": [],
+            "type": "object"
+          },
           "pullPolicy": {
             "description": "Pull policy for the container image.",
             "enum": [
@@ -336,7 +348,7 @@
                 "type": "string"
               },
               "secrets": {
-                "description": "List of secrets to fetch from Infisical. All secrets are mounted as files at /secrets/. Optionally, they can also be loaded as environment variables.\n",
+                "description": "List of secrets to fetch from Infisical. All secrets are mounted as files at /secrets/. Optionally, they can also be loaded as environment variables. secretKey is the only required field, and fileName and envName are interpolated from it if not provided. fileName defaults to kebab-case of secretKey, and envName defaults to secretKey directly.\n",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -379,7 +391,6 @@
                     }
                   },
                   "required": [
-                    "fileName",
                     "secretKey"
                   ],
                   "type": "object"
@@ -456,11 +467,87 @@
             "required": [],
             "type": "object"
           },
+          "tolerations": {
+            "description": "Tolerations allow pods to be scheduled on nodes with matching taints. Use this to run pods on nodes that have been tainted for specific workloads (e.g., dedicated nodes, nodes with special hardware, or nodes undergoing maintenance).\n",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "effect": {
+                  "description": "The taint effect to match. Can be NoSchedule, PreferNoSchedule, or NoExecute.",
+                  "enum": [
+                    "NoSchedule",
+                    "PreferNoSchedule",
+                    "NoExecute"
+                  ],
+                  "examples": [
+                    "NoSchedule",
+                    "PreferNoSchedule",
+                    "NoExecute"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "key": {
+                  "description": "The taint key that the toleration applies to.",
+                  "examples": [
+                    "dedicated",
+                    "gpu"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "operator": {
+                  "description": "Operator for the toleration. Can be Equal or Exists.",
+                  "enum": [
+                    "Equal",
+                    "Exists"
+                  ],
+                  "examples": [
+                    "Equal",
+                    "Exists"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "tolerationSeconds": {
+                  "description": "Period of time a pod will stay bound to a node with a matching taint of effect NoExecute. Only applicable when effect is NoExecute.\n",
+                  "examples": [
+                    "300"
+                  ],
+                  "required": [],
+                  "type": "integer"
+                },
+                "value": {
+                  "description": "The taint value that the toleration matches (only used with Equal operator).",
+                  "examples": [
+                    "high-memory",
+                    "true"
+                  ],
+                  "required": [],
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "required": [],
+            "type": "array"
+          },
           "volumes": {
             "description": "Configurations for additional volumes to be mounted into the container. The key of each volume object is the name of the volume.\n",
             "items": {
               "additionalProperties": false,
               "properties": {
+                "accessMode": {
+                  "description": "Access mode for the volume. Defaults to ReadWriteOnce.\n",
+                  "examples": [
+                    "ReadWriteOnce",
+                    "ReadOnlyMany",
+                    "ReadWriteMany"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
                 "mountPath": {
                   "description": "Path inside the container where the volume will be mounted.",
                   "examples": [
@@ -480,9 +567,6 @@
                 },
                 "readOnly": {
                   "description": "Whether the volume should be mounted as read-only.",
-                  "examples": [
-                    "true"
-                  ],
                   "required": [],
                   "type": "boolean"
                 },
@@ -492,6 +576,16 @@
                     "5Gi"
                   ],
                   "pattern": "^([1-9][0-9]*[KMGTE]i?)|\\$\\{[a-zA-Z-_]+\\}$",
+                  "required": [],
+                  "type": "string"
+                },
+                "storageClass": {
+                  "description": "Storage class name for the volume. Defaults to \"local-path\". This determines the type of storage backend to use (e.g., local-path, nfs, azure-disk).\n",
+                  "examples": [
+                    "local-path",
+                    "nfs-client",
+                    "azure-disk"
+                  ],
                   "required": [],
                   "type": "string"
                 }
@@ -537,6 +631,12 @@
       "items": {
         "additionalProperties": false,
         "properties": {
+          "affinity": {
+            "additionalProperties": true,
+            "description": "Affinity rules for advanced pod scheduling. Supports nodeAffinity, podAffinity, and podAntiAffinity. Use this for more complex scheduling requirements like preferring certain nodes, requiring co-location with other pods, or ensuring pods are spread across zones.\n",
+            "required": [],
+            "type": "object"
+          },
           "config": {
             "additionalProperties": false,
             "description": "Configuration file to be mounted as a volume (e.g., config.yaml). This is typically used for application-specific configuration files. Pass these configuration files when running helm install using --set-file. For example: helm install my-release . --set-file appConfig=config.yaml\n",
@@ -601,6 +701,12 @@
             "pattern": "^[a-z0-9-]+$",
             "required": [],
             "type": "string"
+          },
+          "nodeSelector": {
+            "additionalProperties": true,
+            "description": "Node selector for scheduling pods on specific nodes. This allows you to constrain pods to run on nodes with specific labels.\n",
+            "required": [],
+            "type": "object"
           },
           "pullPolicy": {
             "description": "Pull policy for the container image.",
@@ -793,7 +899,7 @@
                 "type": "string"
               },
               "secrets": {
-                "description": "List of secrets to fetch from Infisical. All secrets are mounted as files at /secrets/. Optionally, they can also be loaded as environment variables.\n",
+                "description": "List of secrets to fetch from Infisical. All secrets are mounted as files at /secrets/. Optionally, they can also be loaded as environment variables. secretKey is the only required field, and fileName and envName are interpolated from it if not provided. fileName defaults to kebab-case of secretKey, and envName defaults to secretKey directly.\n",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -836,7 +942,6 @@
                     }
                   },
                   "required": [
-                    "fileName",
                     "secretKey"
                   ],
                   "type": "object"
@@ -921,6 +1026,72 @@
             "required": [],
             "type": "string"
           },
+          "tolerations": {
+            "description": "Tolerations allow pods to be scheduled on nodes with matching taints. Use this to run pods on nodes that have been tainted for specific workloads (e.g., dedicated nodes, nodes with special hardware, or nodes undergoing maintenance).\n",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "effect": {
+                  "description": "The taint effect to match. Can be NoSchedule, PreferNoSchedule, or NoExecute.",
+                  "enum": [
+                    "NoSchedule",
+                    "PreferNoSchedule",
+                    "NoExecute"
+                  ],
+                  "examples": [
+                    "NoSchedule",
+                    "PreferNoSchedule",
+                    "NoExecute"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "key": {
+                  "description": "The taint key that the toleration applies to.",
+                  "examples": [
+                    "dedicated",
+                    "gpu"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "operator": {
+                  "description": "Operator for the toleration. Can be Equal or Exists.",
+                  "enum": [
+                    "Equal",
+                    "Exists"
+                  ],
+                  "examples": [
+                    "Equal",
+                    "Exists"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "tolerationSeconds": {
+                  "description": "Period of time a pod will stay bound to a node with a matching taint of effect NoExecute. Only applicable when effect is NoExecute.\n",
+                  "examples": [
+                    "300"
+                  ],
+                  "required": [],
+                  "type": "integer"
+                },
+                "value": {
+                  "description": "The taint value that the toleration matches (only used with Equal operator).",
+                  "examples": [
+                    "high-memory",
+                    "true"
+                  ],
+                  "required": [],
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "required": [],
+            "type": "array"
+          },
           "updateStrategy": {
             "description": "Update strategy for the Deployment.",
             "enum": [
@@ -938,6 +1109,21 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "accessMode": {
+                  "description": "Access mode for the volume. Defaults to ReadWriteOnce.\n",
+                  "enum": [
+                    "ReadWriteOnce",
+                    "ReadOnlyMany",
+                    "ReadWriteMany"
+                  ],
+                  "examples": [
+                    "ReadWriteOnce",
+                    "ReadOnlyMany",
+                    "ReadWriteMany"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
                 "mountPath": {
                   "description": "Path inside the container where the volume will be mounted.",
                   "examples": [
@@ -969,6 +1155,16 @@
                     "5Gi"
                   ],
                   "pattern": "^([1-9][0-9]*[KMGTE]i?)|\\$\\{[a-zA-Z-_]+\\}$",
+                  "required": [],
+                  "type": "string"
+                },
+                "storageClass": {
+                  "description": "Storage class name for the volume. Defaults to \"local-path\". This determines the type of storage backend to use (e.g., local-path, nfs, azure-disk).\n",
+                  "examples": [
+                    "local-path",
+                    "nfs-client",
+                    "azure-disk"
+                  ],
                   "required": [],
                   "type": "string"
                 }

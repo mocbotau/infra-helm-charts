@@ -277,14 +277,16 @@ version: "not set"
 #           description: >
 #             List of secrets to fetch from Infisical.
 #             All secrets are mounted as files at /secrets/. Optionally, they can also be loaded as environment variables.
+#             secretKey is the only required field, and fileName and envName are interpolated from it if not provided.
+#             fileName defaults to kebab-case of secretKey, and envName defaults to secretKey directly.
 #           items:
 #             type: object
 #             additionalProperties: false
-#             required: [fileName, secretKey]
+#             required: [secretKey]
 #             properties:
 #               fileName:
 #                 type: string
-#                 required: true
+#                 required: false
 #                 description: Name of the file to create in the mounted volume at /secrets/.
 #                 examples: ["db-credentials", "api-key"]
 #               secretKey:
@@ -339,7 +341,65 @@ version: "not set"
 #           readOnly:
 #             type: boolean
 #             description: Whether the volume should be mounted as read-only.
-#             examples: [true]
+#           accessMode:
+#             type: string
+#             description: >
+#               Access mode for the volume. Defaults to ReadWriteOnce.
+#             examples: [ReadWriteOnce, ReadOnlyMany, ReadWriteMany]
+#           storageClass:
+#             type: string
+#             description: >
+#               Storage class name for the volume. Defaults to "local-path".
+#               This determines the type of storage backend to use (e.g., local-path, nfs, azure-disk).
+#             examples: [local-path, nfs-client, azure-disk]
+#     nodeSelector:
+#       type: object
+#       additionalProperties: true
+#       description: >
+#         Node selector for scheduling pods on specific nodes.
+#         This allows you to constrain pods to run on nodes with specific labels.
+#     affinity:
+#       type: object
+#       additionalProperties: true
+#       description: >
+#         Affinity rules for advanced pod scheduling.
+#         Supports nodeAffinity, podAffinity, and podAntiAffinity.
+#         Use this for more complex scheduling requirements like preferring certain nodes,
+#         requiring co-location with other pods, or ensuring pods are spread across zones.
+#     tolerations:
+#       type: array
+#       description: >
+#         Tolerations allow pods to be scheduled on nodes with matching taints.
+#         Use this to run pods on nodes that have been tainted for specific workloads
+#         (e.g., dedicated nodes, nodes with special hardware, or nodes undergoing maintenance).
+#       items:
+#         type: object
+#         additionalProperties: false
+#         properties:
+#           key:
+#             type: string
+#             description: The taint key that the toleration applies to.
+#             examples: [dedicated, gpu]
+#           operator:
+#             type: string
+#             description: Operator for the toleration. Can be Equal or Exists.
+#             examples: [Equal, Exists]
+#             enum: [Equal, Exists]
+#           value:
+#             type: string
+#             description: The taint value that the toleration matches (only used with Equal operator).
+#             examples: [high-memory, true]
+#           effect:
+#             type: string
+#             description: The taint effect to match. Can be NoSchedule, PreferNoSchedule, or NoExecute.
+#             examples: [NoSchedule, PreferNoSchedule, NoExecute]
+#             enum: [NoSchedule, PreferNoSchedule, NoExecute]
+#           tolerationSeconds:
+#             type: integer
+#             description: >
+#               Period of time a pod will stay bound to a node with a matching taint of effect NoExecute.
+#               Only applicable when effect is NoExecute.
+#             examples: [300]
 # @schema
 deployments: []
 
@@ -567,14 +627,16 @@ deployments: []
 #           description: >
 #             List of secrets to fetch from Infisical.
 #             All secrets are mounted as files at /secrets/. Optionally, they can also be loaded as environment variables.
+#             secretKey is the only required field, and fileName and envName are interpolated from it if not provided.
+#             fileName defaults to kebab-case of secretKey, and envName defaults to secretKey directly.
 #           items:
 #             type: object
 #             additionalProperties: false
-#             required: [fileName, secretKey]
+#             required: [secretKey]
 #             properties:
 #               fileName:
 #                 type: string
-#                 required: true
+#                 required: false
 #                 description: Name of the file to create in the mounted volume at /secrets/.
 #                 examples: ["db-credentials", "api-key"]
 #               secretKey:
@@ -630,5 +692,65 @@ deployments: []
 #             type: boolean
 #             description: Whether the volume should be mounted as read-only.
 #             examples: [true]
+#           accessMode:
+#             type: string
+#             description: >
+#               Access mode for the volume. Defaults to ReadWriteOnce.
+#             examples: [ReadWriteOnce, ReadOnlyMany, ReadWriteMany]
+#             enum: [ReadWriteOnce, ReadOnlyMany, ReadWriteMany]
+#           storageClass:
+#             type: string
+#             description: >
+#               Storage class name for the volume. Defaults to "local-path".
+#               This determines the type of storage backend to use (e.g., local-path, nfs, azure-disk).
+#             examples: [local-path, nfs-client, azure-disk]
+#     nodeSelector:
+#       type: object
+#       additionalProperties: true
+#       description: >
+#         Node selector for scheduling pods on specific nodes.
+#         This allows you to constrain pods to run on nodes with specific labels.
+#     affinity:
+#       type: object
+#       additionalProperties: true
+#       description: >
+#         Affinity rules for advanced pod scheduling.
+#         Supports nodeAffinity, podAffinity, and podAntiAffinity.
+#         Use this for more complex scheduling requirements like preferring certain nodes,
+#         requiring co-location with other pods, or ensuring pods are spread across zones.
+#     tolerations:
+#       type: array
+#       description: >
+#         Tolerations allow pods to be scheduled on nodes with matching taints.
+#         Use this to run pods on nodes that have been tainted for specific workloads
+#         (e.g., dedicated nodes, nodes with special hardware, or nodes undergoing maintenance).
+#       items:
+#         type: object
+#         additionalProperties: false
+#         properties:
+#           key:
+#             type: string
+#             description: The taint key that the toleration applies to.
+#             examples: [dedicated, gpu]
+#           operator:
+#             type: string
+#             description: Operator for the toleration. Can be Equal or Exists.
+#             examples: [Equal, Exists]
+#             enum: [Equal, Exists]
+#           value:
+#             type: string
+#             description: The taint value that the toleration matches (only used with Equal operator).
+#             examples: [high-memory, true]
+#           effect:
+#             type: string
+#             description: The taint effect to match. Can be NoSchedule, PreferNoSchedule, or NoExecute.
+#             examples: [NoSchedule, PreferNoSchedule, NoExecute]
+#             enum: [NoSchedule, PreferNoSchedule, NoExecute]
+#           tolerationSeconds:
+#             type: integer
+#             description: >
+#               Period of time a pod will stay bound to a node with a matching taint of effect NoExecute.
+#               Only applicable when effect is NoExecute.
+#             examples: [300]
 # @schema
 statefulSets: []

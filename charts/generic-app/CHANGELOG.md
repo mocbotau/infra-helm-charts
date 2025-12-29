@@ -1,5 +1,13 @@
 ## `generic-app` chart
 
+Version 0.4.0
+
+- Add multi-node support: nodeSelector, affinity (nodeAffinity, podAffinity, podAntiAffinity), and tolerations for both deployments and statefulSets
+- Add support for configurable storage class and access modes for volumes (both deployments and statefulSets)
+- Add smart defaults for secretProviderClass: fileName auto-generated from secretKey (e.g., DATABASE_URL -> database-url), envName defaults to secretKey
+- Refactor: Extract common pod spec into shared template to reduce code duplication and ensure consistency between deployments and statefulSets
+- Refactor: volume names are no longer prepended with vol- for consistency between deployments and statefulsets
+
 Version 0.3.0
 
 - Replace legacy secrets management with integration of external secrets manager
