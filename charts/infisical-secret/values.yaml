@@ -1,0 +1,64 @@
+# Default values for infisical-secret chart
+# This chart creates a SecretProviderClass that can be used by any deployment/statefulset
+# to mount secrets from Infisical as volumes
+
+# Name of the SecretProviderClass resource
+name: ""
+
+# Namespace to deploy the SecretProviderClass (defaults to Release namespace)
+namespace: ""
+
+# Infisical configuration
+infisical:
+  # Infisical server URL
+  url: "https://infisical.masterofcubesau.com"
+
+  # Authentication method (kubernetes, universal-auth, aws-iam, azure, gcp-id-token, gcp-iam)
+  authMethod: "kubernetes"
+
+  # Use default audience for Kubernetes auth
+  useDefaultAudience: true
+
+  # Infisical identity ID (required for kubernetes auth)
+  identityId: "914bf541-154a-498e-abc8-25955b59dcb6"
+
+  # Infisical project ID (required)
+  projectId: ""
+
+  # Environment slug (e.g., dev, staging, prod)
+  envSlug: "dev"
+
+# Secrets to fetch from Infisical
+secrets:
+  # Example:
+  # - secretPath: "/"
+  #   secretKey: "DATABASE_URL"
+  #   fileName: "db-url"
+  #   envName: "DATABASE_URL"
+  #
+  # - secretPath: "/api"
+  #   secretKey: "API_KEY"
+  #   fileName: "api-key"
+  #   envName: "API_KEY"
+
+# Whether to sync secrets to a Kubernetes Secret
+# This allows using secrets as environment variables in addition to volume mounts
+syncAsKubernetesSecret:
+  enabled: false
+  # Name of the Kubernetes secret to create (defaults to {name}-secret)
+  secretName: ""
+  # Type of the Kubernetes secret
+  type: Opaque
+
+# Volume mount configuration for pods that will use these secrets
+volumeMount:
+  # Mount path in the container
+  mountPath: "/mnt/secrets"
+  # Whether the volume should be read-only
+  readOnly: true
+
+# Additional labels to add to the SecretProviderClass
+labels: {}
+
+# Additional annotations to add to the SecretProviderClass
+annotations: {}

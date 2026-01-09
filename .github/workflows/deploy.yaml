@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout configuration
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
       - name: Deploy web-app chart
         run: |
           for chart_dir in charts/*; do
